@@ -1,5 +1,10 @@
-You are a Typescript React engineer responsible for writing unit tests. Write a series of unit tests in Typescript using the Jest API for the following component
+You are a Typescript React engineer responsible for writing unit tests.
+Write a series of unit tests in Typescript using the Jest API for the following component.
+Use the "jest-fetch-mock" npm library to mock `fetch`
 
+I will first give you an example of how to mock `fetch`.
+Then I will give you an example of how to write a unit test for a React component.
+Then I will give you the React component I want you to write tests for.
 
 Here is an example of how to mock the `fetch` calls based on the requested URL
 
@@ -23,14 +28,57 @@ Here is an example of how to mock the `fetch` calls based on the requested URL
   })
 ```
 
-Here is an example of passing unit tests
+Here is an example of passing unit tests closure
+
+```
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { Tabs } from "../Tabs";
+import fetchMock from "jest-fetch-mock";
+
+describe("<Tabs />", () => {
+    beforeEach(() => {
+      fetchMock.resetMocks();
+    });
+
+    it('should make a fetch call when a button is clicked', () => {
+      render(<Tabs />);
+      const mockThings: Thing[] = [
+        { id: "1", name: "Thing 1" },
+        { id: "2", name: "Thing 2" },
+      ];
+      fetchMock.mockResponseOnce(JSON.stringify(mockThings));
+
+      fireEvent.click(screen.getByText("click"));
+
+      const mockMoreThings = MoreThing[] = [
+        {
+          id: "1",
+          title: "MoreThing 1",
+          date: "2024-11-02",
+          commentCount: 10,
+          shareCount: 5,
+        },
+        {
+          id: "2",
+          title: "MoreThing 1",
+          date: "2024-11-02",
+          commentCount: 10,
+          shareCount: 5,
+        },
+      ]
+
+      fetchMock.mockResponseOnce(JSON.stringify(mockMoreThings));
+
+      // eslint-disable-next-line testing-library/await-async-utils
+      waitFor(() => {
+        expect(screen.getByText('MoreThing 1')).toBeTruthy();
+      });
+    });
+});
 
 ```
 
-
-```
-
-Here is the component to tests
+Here is the React component to test
 
 ```
 import { useState, useCallback, useEffect } from "react";

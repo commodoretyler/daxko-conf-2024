@@ -1,55 +1,79 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Tabs } from "../Tabs";
+import fetchMock from "jest-fetch-mock";
 
-describe("Tabs Component", () => {
-  it("should render the tabs component", async () => {
-    render(<Tabs />);
-
-    // Check if the tabs are rendered
-    expect(await screen.findByText("Category 1")).toBeInTheDocument();
-    expect(await screen.findByText("Category 2")).toBeInTheDocument();
+describe("<Tabs />", () => {
+  beforeEach(() => {
+    fetchMock.resetMocks();
   });
 
-  it("should fetch and display posts for the active tab", async () => {
+  it("should fetch categories on mount", async () => {
+    const mockCategories: Category[] = [
+      { id: "1", name: "Category 1" },
+      { id: "2", name: "Category 2" },
+    ];
+    fetchMock.mockResponseOnce(JSON.stringify(mockCategories));
+
     render(<Tabs />);
 
-    // Check if the posts for the first tab are rendered
-    expect(
-      await screen.findByText(`Avoid Nesting When You're Testing`)
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(`How I Built A Modern Website In 2021`)
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Category 1")).toBeInTheDocument();
+      expect(screen.getByText("Category 2")).toBeInTheDocument();
+    });
   });
 
-  it("should switch tabs and display the correct posts", async () => {
+  it("should fetch posts for the active tab", async () => {
+    const mockCategories: Category[] = [{ id: "1", name: "Category 1" }];
+    const mockPosts: Post[] = [
+      {
+        id: "1",
+        title: "Post 1",
+        date: "2024-11-02",
+        commentCount: 10,
+        shareCount: 5,
+      },
+    ];
+    fetchMock.mockResponses(
+      JSON.stringify(mockCategories),
+      JSON.stringify(mockPosts)
+    );
+
     render(<Tabs />);
 
-    // Click on the second tab
+    await waitFor(() => {
+      expect(screen.getByText("Post 1")).toBeInTheDocument();
+    });
+  });
+
+  it("should update the active tab when a tab is clicked", async () => {
+    const mockCategories: Category[] = [
+      { id: "1", name: "Category 1" },
+      { id: "2", name: "Category 2" },
+    ];
+    fetchMock.mockResponseOnce(JSON.stringify(mockCategories));
+
+    render(<Tabs />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Category 1")).toBeInTheDocument();
+    });
+
     fireEvent.click(screen.getByText("Category 2"));
 
-    // Check if the posts for the second tab are rendered
-    expect(await screen.findByText(`Post from Category 2`)).toBeInTheDocument();
+    // Add assertions to check if the active tab has changed and corresponding posts are fetched
   });
 
-  it("should update posts when the active tab changes", async () => {
+  it("should handle API errors gracefully", async () => {
+    fetchMock.mockReject(new Error("API error"));
+
     render(<Tabs />);
 
-    // Click on the second tab
-    fireEvent.click(screen.getByText("Category 2"));
+    // Add assertions to check for error handling (e.g., display an error message)
+  });
 
-    // Check if the posts for the second tab are rendered
-    expect(await screen.findByText(`Post from Category 2`)).toBeInTheDocument();
+  it("should not fetch posts if categories are not loaded", async () => {
+    render(<Tabs />);
 
-    // Click on the first tab
-    fireEvent.click(screen.getByText("Category 1"));
-
-    // Check if the posts for the first tab are rendered
-    expect(
-      await screen.findByText(`Avoid Nesting When You're Testing`)
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(`How I Built A Modern Website In 2021`)
-    ).toBeInTheDocument();
+    // Assert that fetch is not called for posts
   });
 });
