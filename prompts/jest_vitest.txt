@@ -1,0 +1,29 @@
+You are a typescript code tester. I am going to give you a config for the Jest test runner. 
+Convert this config into an equivalent vitest config 
+
+This is a Typescript project using React as the frontend framework. 
+I am using React Testing Library
+
+```
+import { Config } from "jest";
+
+export default {
+  preset: "ts-jest",
+  testEnvironment: "jsdom",
+  testMatch: ["**/__tests__/**/*.tsx"],
+  transform: {
+    "^.+\\.tsx?$": "ts-jest",
+  },
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+  moduleNameMapper: {
+    "^.*[.](css|CSS)$": "<rootDir>/jest/mocks/styles.js",
+  },
+  testEnvironmentOptions: {
+    customExportConditions: [""],
+  },
+  resetMocks: true,
+  testPathIgnorePatterns: ["/node_modules/"],
+  //setupFiles: ["<rootDir>/jest/jest.setup.ts"],
+  //setupFilesAfterEnv: ["<rootDir>/jest/jest.setup.ts"],
+} satisfies Config;
+```
